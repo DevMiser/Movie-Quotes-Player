@@ -1,1 +1,58 @@
+import time # import the Time Library (which includes sleep durations)
+import RPi.GPIO as GPIO # import the GPIO Library which enables programming the GPIO pins on the Raspberry Pi
+from pygame import mixer # import the mixer from pygame
+import random # import the Random Library which implements pseudo-random generators for various distributions
+import glob # import the glob module which finds all the pathnames matching a specified pattern
 
+# In the following, glob.glob uses the glob module and the glob function to search multilevel directories and
+# the * matches multiple characters in the directory, so this effectively creates a variable named
+# "soundfiles" which refers to all files stored in the MovieAudioCLips folder
+soundfiles = glob.glob("MovieAudioClips/*.wav")
+
+# Pins definitions:
+buttonPin = 11 # the button is connected to the physical GPIO pin 26
+ledPin = 24 # the LED is connected to the physical GPIO pin 21
+
+# Pins set up
+
+#The following numbers the physical GPIO pins by Broadcom chip-specific pin numbers. These pin numbers
+# follow the lower-level numbering system defined by the Raspberry Pi's Broadcom-chip CPU.
+GPIO.setmode(GPIO.BCM)
+
+GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP) # make the button an input with an internal pull-up resistor
+GPIO.setup(ledPin, GPIO.OUT) # make the LED an output
+
+# Initialize the pygame mixer module for sound loading and playback
+mixer.init()
+
+# create a function that will turn off the LED after a delay
+def LED_delay_off():
+    time.sleep(0.75) # pause 0.75 seconds before turning off the LED
+    GPIO.output(ledPin, GPIO.LOW) # turn off Lthe ED by setting the ledPin to low (0 volts)
+    
+# Remember the current and previous button states
+current_state = True
+prev_state = True
+
+# If button is pushed, play a random sound
+try:
+    while True:
+        current_state = GPIO.input(buttonPin)
+        if (current_state == False) and (prev_state == True):
+            clip = mixer.Sound(random.choice(soundfiles)) #randomly selects a soundfile and names it clip
+            if mixer.get_busy(): #tests if any sound is currently being mixed. Returns "True" if it is busy and "False" if it is idle
+                clip.stop() #prevents a new soundfile from playing if one is already playing
+            else:
+                GPIO.output(ledPin, GPIO.HIGH) #turns on the LED
+                clip.play() #plays the movie audio clip
+  
+        # Turn off the LED when the movie audio clip stops playing
+        if mixer.get_busy() == False:
+            LED_delay_off()
+
+        prev_state = current_state
+
+# When ctrl+c is pressed on a connected keyboard, this will be called:
+except KeyboardInterrupt:
+    GPIO.output(ledPin, GPIO.LOW) # turn off the LED by setting the ledPin to low (0 volts)
+    GPIO.cleanup() # reset all the GPIO pins to input mode
