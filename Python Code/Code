@@ -10,8 +10,8 @@ import glob # import the glob module which finds all the pathnames matching a sp
 soundfiles = glob.glob("MovieAudioClips/*.wav")
 
 # Pins definitions:
-buttonPin = 11 # the button is connected to the physical GPIO pin 26
-ledPin = 24 # the LED is connected to the physical GPIO pin 21
+buttonPin = 11 # the button is connected to the physical GPIO pin 11
+ledPin = 24 # the LED is connected to the physical GPIO pin 24
 
 # Pins set up
 
