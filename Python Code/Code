@@ -39,12 +39,13 @@ try:
     while True:
         current_state = GPIO.input(buttonPin)
         if (current_state == False) and (prev_state == True):
-            clip = mixer.Sound(random.choice(soundfiles)) #randomly selects a soundfile and names it clip
-            if mixer.get_busy(): #tests if any sound is currently being mixed. Returns "True" if it is busy and "False" if it is idle
-                clip.stop() #prevents a new soundfile from playing if one is already playing
+            clip = mixer.Sound(random.choice(soundfiles)) # randomly selects a soundfile and names it clip
+            mixer.Sound.set_volume(clip, 0.3) # change the value to change the playback volume (from 0.0 to 1.0 - a higher value makes it louder)
+            if mixer.get_busy(): # tests if any sound is currently being mixed. Returns "True" if it is busy and "False" if it is idle
+                clip.stop() # prevents a new soundfile from playing if one is already playing
             else:
-                GPIO.output(ledPin, GPIO.HIGH) #turns on the LED
-                clip.play() #plays the movie audio clip
+                GPIO.output(ledPin, GPIO.HIGH) # turns on the LED
+                clip.play() # plays the movie audio clip
   
         # Turn off the LED when the movie audio clip stops playing
         if mixer.get_busy() == False:
